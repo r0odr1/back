@@ -1,80 +1,35 @@
-const express = require("express");
-const db = require("@makeitrealcamp/db-mock");
+const express = require('express')
+const cors = require('cors')
+const dotenv = require('dotenv').config()
 
-const app = express();
-const port = 3000;
+const {
+  handleCreateData,
+  handleReadData,
+  handleReadDataById,
+  handleUpdateData,
+  handleDeleteData
+} = require('./controller')
 
-app.use(express.json()); //Recibimos el body
+const app = express()
+const PORT = process.env.PORT || 3001
 
-//Rutes
+app.use(cors())
+app.use(express.json())
 
-app.get("/healtcheck", (req, res) => {
-  res.status(200).send("OK");
-});
-
-//Create = POST
-app.post("/users", (req, res) => {
-  try {
-    const { body } = req;
-    const response = db.insert({ ...body });
-
-    res
-      .status(201)
-      .json({ message: "User created succesfully", data: response });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-//Read = GET
-app.get("/users", (req, res) => {
-  try {
-    const response = db.findAll();
-
-    res
-      .status(200)
-      .json({ message: "User created succesfully", data: response });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-//Read = GET:id
-app.get("/users/:id", (req, res) => {
-  try {
-    const { id } = req.params;
-    const response = db.findById(id);
-
-    res.status(200).json({ message: "User found succesfully", data: response });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-app.put("/users/:id", (req, res) => {
-  try {
-    const { id } = req.params;
-    const { body } = req;
-
-    const response = db.update({ id, ...body });
-
-    res.status(200).json({ message: 'User update succesfully', data: response })
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-app.delete("/users/:id", (req, res) => {
-  try {
-    const { id } = req.params
-    const response = db.remove(id)
-
-    res.status(201).json({ message: 'User deleted succesfully', data: response})
-  } catch (error) {
-    res.status(400).json({ message: error.message })
-  }
+app.get('/healthcheck', (_, res) => {
+  res.status(200).send('OK')
 })
 
-app.listen(port, () => {
-  console.log(`Successfully running at ${port}`);
-});
+app.post('/products', handleCreateData)
+
+app.get('/products', handleReadData)
+
+app.get('/products/:id', handleReadDataById)
+
+app.put('/products/:id', handleUpdateData)
+
+app.delete('/products/:id', handleDeleteData)
+
+app.listen(PORT, () => {
+  console.log(`Successfully running at http://localhost:${PORT}`)
+})
